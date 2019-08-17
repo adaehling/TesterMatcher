@@ -24,10 +24,10 @@ $dListBox.Size = New-Object System.Drawing.Size(75, 100)
 $dListBox.Height = 200
 $dListBox.SelectionMode = 'MultiExtended'
 
-$bugData = Import-Csv -Path "$PSScriptRoot\testData\bugs.csv"
-$devicesData = Import-Csv -Path "$PSScriptRoot\testData\devices.csv"
-$testerDevices = Import-Csv -Path "$PSScriptRoot\testData\tester_device.csv"
-$testers = Import-Csv -Path "$PSScriptRoot\testData\testers.csv"
+$bugData = Import-Csv -Path "$PSScriptRoot\..\testData\bugs.csv"
+$devicesData = Import-Csv -Path "$PSScriptRoot\..\testData\devices.csv"
+$testerDevices = Import-Csv -Path "$PSScriptRoot\..\testData\tester_device.csv"
+$testers = Import-Csv -Path "$PSScriptRoot\..\testData\testers.csv"
 
 $availCountries = ($testers.Country | Select-Object -Unique)
 $availDevices = ($devicesData.Description | Select-Object -Unique)
