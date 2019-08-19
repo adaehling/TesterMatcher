@@ -103,3 +103,8 @@ def getAvailableDevices():
     cursor = dbConnection.cursor()
     cursor.execute(getAllDevicesQuery)
     return cursor.fetchall()
+
+# executes the query to return the tester results based on user input
+# on selected country(ies) and device(s)
+def matchTesters():
+    print("db")
