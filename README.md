@@ -6,9 +6,9 @@ This simple application matches testers based on the input provided by the user.
 1. Install Python 3.7+
     - This was tested on Python 3.7.4
 2. Clone the repository:
-    - ```git clone https://github.com/adaehling/applausepractice.git```
+    - ```git clone https://github.com/adaehling/TesterMatcher.git```
 3. Change directories into the cloned repository
-    - ```cd applausepractice```
+    - ```cd TesterMatcher```
 4. Run the application by invoking ```tester_matcher.py``` with Python:
     - ```py .\tester_matcher.py```
 
