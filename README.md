@@ -18,6 +18,8 @@ The first area is the Country selection. The second is the Device selection. The
 
 You are able to have multiple selections in each input area by clicking on each individual row. You deselect by clicking on the highlighted row.  
 
+When you are done making selections, click the 'Match Testers' button to show the results.
+
 ---
 
 ## PowerShell script ##
