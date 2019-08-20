@@ -104,7 +104,48 @@ def getAvailableDevices():
     cursor.execute(getAllDevicesQuery)
     return cursor.fetchall()
 
+
+getTestersByCountryQuery = 'select testerId, firstname from testers where country in '
+getDevicesByDescriptionQuery = 'select deviceId from devices where description in '
+
 # executes the query to return the tester results based on user input
 # on selected country(ies) and device(s)
-def matchTesters():
-    print("db")
+def matchTesters(countries, devices):
+    cursor = dbConnection.cursor()
+
+    countryInClause = str(countries).replace('[','(').replace(']',')')
+    deviceInClause = str(devices).replace('[','(').replace(']',')')
+    
+    cursor.execute(getTestersByCountryQuery + countryInClause)
+    testers = cursor.fetchall()
+
+    testerIds = []
+    for tester in testers:
+        testerIds.append(tester[0])
+
+    resultTable = {}
+    testerIdToName = {}
+    for testerData in testers:
+        testerIdToName[str(testerData[0])] = testerData[1]
+        resultTable[str(testerData[0])] = 0
+    
+    cursor.execute(getDevicesByDescriptionQuery + deviceInClause)
+    devices = cursor.fetchall()
+    
+    deviceIds = []
+    for device in devices:
+        deviceIds.append(device[0])
+
+    testerIdInClause = str(testerIds).replace('[','(').replace(']',')')
+    deviceIdInClause = str(deviceIds).replace('[','(').replace(']',')')
+
+    cursor.execute('select * from bugs where deviceId in ' + deviceIdInClause + ' and ' 'testerId in ' + testerIdInClause)
+    matchedTesters = cursor.fetchall()
+    
+    default = None
+    for row in matchedTesters:
+        experience = resultTable.get(str(row[2]), default)
+        if experience is not None:
+            resultTable[str(row[2])] += 1
+
+    return (resultTable,testerIdToName)

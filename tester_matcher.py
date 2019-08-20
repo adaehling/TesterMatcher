@@ -3,9 +3,6 @@ from tkinter import *
 from database import database
 
 class Window(Frame):
-
-    countrySelectionList = []
-    deviceSelectionList = []
     countryListbox = None
     deviceListbox = None
     resultsListbox = None
@@ -13,6 +10,7 @@ class Window(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.master = master
+        database.createDbConnection()
         self.initializeWindow()
 
     def initializeWindow(self):
@@ -21,20 +19,16 @@ class Window(Frame):
 
         # create the button to initiate matching testers based on user input
         matchButton = Button(self, text="Match Testers", command=self.matchTesters)
-        matchButton.place(x=700, y=560)
+        matchButton.place(x=470, y=400)
         
         # create the ListBox objects to display the country and device information
         Label(self, text="Select One or More Countries").place(x=20, y=0)
         self.countryListbox = Listbox(self, selectmode='multiple', height=20, width=25, exportselection=0)
-        self.countryListbox.insert(1, "1")
-        self.countryListbox.insert(2, "2")
         self.countryListbox.place(x=20, y=20)
 
         Label(self, text="Select One or More Devices").place(x=200, y=0)
         self.deviceListbox = Listbox(self, selectmode='multiple', height=20, width=30, exportselection=0)
         self.deviceListbox.place(x=200, y=20)
-        self.deviceListbox.insert(1, "Samsung Galaxy S10")
-        self.deviceListbox.insert(2, "iPhone 6S")
 
         Label(self, text="Tester Match Results:").place(x=450, y=0)
         self.resultsListbox = Listbox(self, height=20, width=30, exportselection=0)
@@ -45,41 +39,56 @@ class Window(Frame):
         scrollbar.pack(side="right", fill="y")
         self.resultsListbox.config(yscrollcommand=scrollbar.set)
 
-        for i in range(100):
-            self.resultsListbox.insert(END, "Line number " + str(i))
-
-        # create another object to hold the output from the database query
-        # this will show the results from the query or an 'error' message
-        # if the user did not select at least one country and one device
+        countries = self.getListOfCountries()
+        count = 0
+        for country in countries:
+            # the query is returning each individual result as a tuple with the value of the country and an empty value
+            self.countryListbox.insert(count, country[0])
+            count += 1
+            
+        devices = self.getListOfDevices()
+        for device in devices:
+            self.deviceListbox.insert(device[0] - 1, device[1])
 
     def matchTesters(self):
-        selectedCountries = self.countryListbox.curselection()
-        selectedDevices = self.deviceListbox.curselection()
+        # clear the results listbox
+        self.resultsListbox.delete('0', 'end')
+
+        # returns index of selected choices
+        selectedCountryIndices = self.countryListbox.curselection()
+        selectedDeviceIndices = self.deviceListbox.curselection()
+
+        countries = []
+        for index in selectedCountryIndices:
+            countries.append(self.countryListbox.get(index))
+
+        devices = []
+        for index in selectedDeviceIndices:
+            devices.append(self.deviceListbox.get(index))
         
-        database.matchTesters()
+        result,firstNameKey = database.matchTesters(countries, devices)
+        
+        # sort dict by values
+        sortedTupleList = sorted(result.items(), key=lambda x: x[1], reverse=True)
+
+        index = 0
+        for matchedTester in sortedTupleList:
+            self.resultsListbox.insert(index, firstNameKey[matchedTester[0]] + '  :  ' + str(matchedTester[1]))
+            index += 1
+
+
+    def getListOfCountries(self):
+        return database.getAvailableCountries()
+
+    def getListOfDevices(self):
+        return database.getAvailableDevices()
 
 
 def main():
-    database.createDbConnection()
-    allCountries = database.getAvailableCountries()
-    allDevices = database.getAvailableDevices()
-
-    countryPicker = {}
-    count = 1
-    for country in allCountries:
-        # the query result is somehow turning each returned row into a tuple with the country as the first time, and an empty string as the second
-        countryPicker[str(count)] = country[0]
-        count += 1
-    
-    devicePicker = {}
-    for device in allDevices:
-        devicePicker[str(device[0])] = device[1].replace('\'','')
-
     root = Tk()
     root.geometry("800x600")
     app = Window(root)
     root.mainloop()
-
 
 if __name__ == '__main__':
     main()
